@@ -1,14 +1,52 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:pusher/res/custom_colors.dart';
-import 'package:pusher/screens/pusher_home_page.dart';
-import 'package:pusher/auth/authentication.dart';
-import 'package:pusher/widgets/app_bar_title.dart';
+import 'package:firebase_auth/firebase_auth.dart' show User;
+import 'package:flutter/material.dart'
+    show
+        AlwaysStoppedAnimation,
+        AppBar,
+        BorderRadius,
+        BoxFit,
+        BuildContext,
+        ButtonStyle,
+        CircularProgressIndicator,
+        ClipOval,
+        Color,
+        Colors,
+        Column,
+        CurveTween,
+        Curves,
+        EdgeInsets,
+        ElevatedButton,
+        FontWeight,
+        Icon,
+        Icons,
+        Image,
+        MainAxisAlignment,
+        Material,
+        MaterialStateProperty,
+        Navigator,
+        Offset,
+        Padding,
+        PageRouteBuilder,
+        RoundedRectangleBorder,
+        Route,
+        Row,
+        SafeArea,
+        Scaffold,
+        SizedBox,
+        SlideTransition,
+        State,
+        StatefulWidget,
+        Text,
+        TextStyle,
+        Tween,
+        Widget;
+import 'package:pusher/res/custom_colors.dart' show CustomColors;
+import 'package:pusher/screens/pusher_home_page.dart' show PusherHomePage;
+import 'package:pusher/auth/authentication.dart' show Authentication;
+import 'package:pusher/widgets/app_bar_title.dart' show AppBarTitle;
 
 class UserInfoScreen extends StatefulWidget {
-  const UserInfoScreen({Key? key, required User user})
-      : _user = user,
-        super(key: key);
+  const UserInfoScreen({super.key, required User user}) : _user = user;
 
   final User _user;
 
@@ -22,14 +60,15 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const PusherHomePage(title: "WHAT"),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const PusherHomePage(title: "WHAT"),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(-1.0, 0.0);
         var end = Offset.zero;
         var curve = Curves.ease;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -65,30 +104,30 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(),
+              const Row(),
               _user.photoURL != null
                   ? ClipOval(
-                child: Material(
-                  color: CustomColors.firebaseGrey.withOpacity(0.3),
-                  child: Image.network(
-                    _user.photoURL!,
-                    fit: BoxFit.fitHeight,
-                  ),
-                ),
-              )
+                      child: Material(
+                        color: CustomColors.firebaseGrey.withOpacity(0.3),
+                        child: Image.network(
+                          _user.photoURL!,
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                    )
                   : ClipOval(
-                child: Material(
-                  color: CustomColors.firebaseGrey.withOpacity(0.3),
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Icon(
-                      Icons.person,
-                      size: 60,
-                      color: CustomColors.firebaseGrey,
+                      child: Material(
+                        color: CustomColors.firebaseGrey.withOpacity(0.3),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Icon(
+                            Icons.person,
+                            size: 60,
+                            color: CustomColors.firebaseGrey,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
               const SizedBox(height: 16.0),
               const Text(
                 'Hello',
@@ -116,7 +155,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
               ),
               const SizedBox(height: 24.0),
               Text(
-                'You are now signed in using your Google account. To sign out of your account click the "Sign Out" button below.',
+                'You are now signed in using your Google account. '
+                'To sign out of your account click the "Sign Out" button below.',
                 style: TextStyle(
                     color: CustomColors.firebaseGrey.withOpacity(0.8),
                     fontSize: 14,
@@ -125,43 +165,45 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
               const SizedBox(height: 16.0),
               _isSigningOut
                   ? const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
                   : ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    Colors.redAccent,
-                  ),
-                  shape: MaterialStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Colors.redAccent,
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          _isSigningOut = true;
+                        });
+                        await Authentication.signOut(context: context);
+                        setState(() {
+                          _isSigningOut = false;
+                        });
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushReplacement(_routeToSignInScreen());
+                        }
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child: Text(
+                          'Sign Out',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                onPressed: () async {
-                  setState(() {
-                    _isSigningOut = true;
-                  });
-                  await Authentication.signOut(context: context);
-                  setState(() {
-                    _isSigningOut = false;
-                  });
-                  Navigator.of(context)
-                      .pushReplacement(_routeToSignInScreen());
-                },
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Text(
-                    'Sign Out',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Color;
 
 class CustomColors {
   static const Color firebaseNavy = Color(0xFF2C384A);

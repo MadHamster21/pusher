@@ -1,8 +1,34 @@
-import 'package:flutter/material.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:pusher/res/custom_colors.dart';
-import 'package:pusher/auth/authentication.dart';
-import 'package:pusher/widgets/google_sign_in_button.dart';
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:flutter/material.dart'
+    show
+        AlwaysStoppedAnimation,
+        AppBar,
+        BuildContext,
+        Center,
+        CircularProgressIndicator,
+        Color,
+        Column,
+        ConnectionState,
+        FloatingActionButton,
+        FutureBuilder,
+        Icon,
+        Icons,
+        MainAxisAlignment,
+        Scaffold,
+        State,
+        StatefulWidget,
+        Text,
+        Theme,
+        Widget;
+import 'package:awesome_notifications/awesome_notifications.dart'
+    show AwesomeNotifications, NotificationContent;
+import 'package:flutter/services.dart' show Color, MethodChannel;
+import 'package:pusher/res/custom_colors.dart' show CustomColors;
+import 'package:pusher/auth/authentication.dart' show Authentication;
+import 'package:pusher/widgets/google_sign_in_button.dart'
+    show GoogleSignInButton;
 
 class PusherHomePage extends StatefulWidget {
   const PusherHomePage({super.key, required this.title});
@@ -15,19 +41,31 @@ class PusherHomePage extends StatefulWidget {
 
 class _PusherHomePageState extends State<PusherHomePage> {
   int _counter = 0;
+  int _pushUpsCount = 0;
+  var platform = const MethodChannel('health_api_channel');
 
   void showNotification() {
+    readPushUpsForToday();
+    setState(() {
+      _counter++;
+    });
     AwesomeNotifications().createNotification(
         content: NotificationContent(
             id: 10,
             channelKey: 'basic_channel',
-            title: 'Simple Notification',
-            body: 'Simple body'
-        )
-    );
-    setState(() {
-      _counter++;
-    });
+            title:
+                (_counter > 1) ? 'Pressed plus again??' : 'Pressed the button',
+            body:
+                'Did you know you pressed the button $_counter times already??'));
+  }
+
+  Future<void> readPushUpsForToday() async {
+    try {
+      int? todayPushUps = await platform.invokeMethod('getTodayPushUpsCount');
+      _pushUpsCount = todayPushUps ?? 0;
+    } catch (e) {
+      print('Error calling native getTodayPushUpsCount method: $e');
+    }
   }
 
   @override
@@ -40,13 +78,12 @@ class _PusherHomePageState extends State<PusherHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-
             const Text(
               'You have pushed the button this many times:',
             ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              '$_counter (Kotlin says $_pushUpsCount)',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             FutureBuilder(
               future: Authentication.initializeFirebase(context: context),
@@ -54,7 +91,12 @@ class _PusherHomePageState extends State<PusherHomePage> {
                 if (snapshot.hasError) {
                   return const Text('Error initializing Firebase');
                 } else if (snapshot.connectionState == ConnectionState.done) {
-                  return const GoogleSignInButton();
+                  if (FirebaseAuth.instance.currentUser != null) {
+                    return Text('User is signed in! Email: '
+                        '${FirebaseAuth.instance.currentUser!.email}');
+                  } else {
+                    return const GoogleSignInButton();
+                  }
                 }
                 return const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(

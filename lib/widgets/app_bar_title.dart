@@ -1,5 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:pusher/res/custom_colors.dart';
+import 'package:flutter/material.dart'
+    show
+        BuildContext,
+        CrossAxisAlignment,
+        Image,
+        MainAxisSize,
+        Row,
+        SizedBox,
+        StatelessWidget,
+        Text,
+        TextStyle,
+        Widget;
+import 'package:pusher/res/custom_colors.dart' show CustomColors;
 
 class AppBarTitle extends StatelessWidget {
   const AppBarTitle({super.key});
@@ -23,7 +34,7 @@ class AppBarTitle extends StatelessWidget {
           ),
         ),
         const Text(
-          ' Authentication',
+          'Authentication',
           style: TextStyle(
             color: CustomColors.firebaseOrange,
             fontSize: 18,
