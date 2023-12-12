@@ -25,6 +25,7 @@ import 'package:flutter/material.dart'
 import 'package:awesome_notifications/awesome_notifications.dart'
     show AwesomeNotifications, NotificationContent;
 import 'package:flutter/services.dart' show Color, MethodChannel;
+import 'package:permission_handler/permission_handler.dart' show Permission, PermissionActions;
 import 'package:pusher/res/custom_colors.dart' show CustomColors;
 import 'package:pusher/auth/authentication.dart' show Authentication;
 import 'package:pusher/widgets/google_sign_in_button.dart'
@@ -42,6 +43,7 @@ class PusherHomePage extends StatefulWidget {
 class _PusherHomePageState extends State<PusherHomePage> {
   int _counter = 0;
   int _pushUpsCount = 0;
+  bool _authorized = false;
   var platform = const MethodChannel('health_api_channel');
 
   void showNotification() {
@@ -65,6 +67,27 @@ class _PusherHomePageState extends State<PusherHomePage> {
       _pushUpsCount = todayPushUps ?? 0;
     } catch (e) {
       print('Error calling native getTodayPushUpsCount method: $e');
+    }
+  }
+
+  Future<void> addPushUps() async {
+    try {
+      bool todayPushUps = await platform
+          .invokeMethod('writePushUpsData', {'sessionPushUps': 5});
+      showNotification();
+    } catch (e) {
+      print('Error calling native writePushUpsData method: $e');
+    }
+  }
+
+  Future<void> authorize() async {
+    await Permission.activityRecognition.request();
+    await Permission.location.request();
+
+    try {
+      _authorized = await platform.invokeMethod("requestAuthorization");
+    } catch (error) {
+      print("Exception in authorize: $error");
     }
   }
 
@@ -109,7 +132,7 @@ class _PusherHomePageState extends State<PusherHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: showNotification,
+        onPressed: addPushUps,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),

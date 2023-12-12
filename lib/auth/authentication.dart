@@ -17,7 +17,6 @@ import 'package:flutter/material.dart'
         SnackBar,
         Text,
         TextStyle;
-import 'package:pusher/screens/user_info_screen.dart' show UserInfoScreen;
 import 'package:google_sign_in/google_sign_in.dart'
     show GoogleSignIn, GoogleSignInAccount, GoogleSignInAuthentication;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -38,17 +37,17 @@ class Authentication {
   }) async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
 
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null && context.mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => UserInfoScreen(
-            user: user,
-          ),
-        ),
-      );
-    }
+    // User? user = FirebaseAuth.instance.currentUser;
+    //
+    // if (user != null && context.mounted) {
+    //   Navigator.of(context).pushReplacement(
+    //     MaterialPageRoute(
+    //       builder: (context) => PusherHomePage(
+    //         title: "Signed in as ${user.email}!",
+    //       ),
+    //     ),
+    //   );
+    // }
 
     return firebaseApp;
   }

@@ -26,7 +26,7 @@ import 'package:flutter/material.dart'
         Text,
         TextStyle,
         Widget;
-import 'package:pusher/screens/user_info_screen.dart' show UserInfoScreen;
+import 'package:pusher/screens/pusher_home_page.dart' show PusherHomePage;
 import 'package:pusher/auth/authentication.dart' show Authentication;
 
 class GoogleSignInButton extends StatefulWidget {
@@ -70,8 +70,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 if (user != null && context.mounted) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => UserInfoScreen(
-                        user: user,
+                      builder: (context) => PusherHomePage(
+                        title: "Signed in as ${user.email}!",
                       ),
                     ),
                   );
